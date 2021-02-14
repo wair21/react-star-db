@@ -5,6 +5,7 @@
 
  // main part of requested resource addresse
  const MAIN_URL = 'https://swapi.dev/api';
+ 
  export default class SwapiService {
    
    /**
@@ -26,7 +27,7 @@
     */
    async getAllPeople () {
      const rec = await this.getResource('/people/');
-     return rec.results;
+     return rec.results.map(this._transformPerson);
    }
  
    /**
@@ -34,7 +35,8 @@
     * @param {*} id 
     */
    async getPerson (id) {
-     return this.getResource(`/people/${id}`);
+     const rec = await this.getResource(`/people/${id}`);
+     return this._transformPerson(rec);
    }
  
    /**
@@ -42,7 +44,7 @@
     */
    async getAllPlanets () {
      const rec = await this.getResource('/planets/');
-     return rec.results;
+     return rec.results.map(this._transformPlanet);
    }
  
    /**
@@ -50,7 +52,8 @@
     * @param {*} id 
     */
    async getPlanet (id) {
-     return this.getResource(`/planets/${id}`);
+     const planet = await this.getResource(`/planets/${id}`);
+     return this._transformPlanet(planet);
    }
  
    /**
@@ -58,7 +61,7 @@
     */
    async getAllStarships () {
      const rec = await this.getResource('/starships/');
-     return rec.results;
+     return rec.results.map(this._transformStarship);
    }
  
    /**
@@ -66,7 +69,61 @@
     * @param {*} id 
     */
    async getStarship (id) {
-     return this.getResource(`/starships/${id}`);
+     const res = this.getResource(`/starships/${id}`); 
+     return this._transformStarship(res);
+   }
+
+   /**
+    * Get item id from Url
+    * @param {*} item 
+    */
+   _getIdFromUrl(item) {
+    const idRegExp = /\/([0-9]*)\/$/;
+    return item.url.match(idRegExp)[1];
+  }
+
+  /**
+   * Transorm url data to convinient view for planets
+   * @param  planet 
+   */
+   _transformPlanet(planet) {
+     return {
+       id:  this._getIdFromUrl(planet),
+       name: planet.name,
+       population: planet.population,
+       rotationPeriod: planet.rotation_period,
+       diameter: planet.diameter
+     }
+   }
+
+   /**
+    * Transform starship info to convinie9
+    * @param {*} starship 
+    */
+   _transformStarship(starship) {
+    return {
+      id: this._getIdFromUrl(starship),
+      name: starship.name,
+      model: starship.model,
+      manufacturer: starship.manufacturer,
+      costInCredits: starship.costInCredits,
+      length: starship.length,
+      crew: starship.crew,
+      passengers: starship.passengers,
+      cargoCapacity: starship.cargoCapacity  
+    }
+   }
+
+   _transformPerson(person) {
+    return {
+      id:  this._getIdFromUrl(person),
+      name: person.name,
+      gender: person.gender,
+      birthYeart: person.birth_year,
+      diameter: person.diameter,
+      eyeColor: person.eyeColor,
+
+    }
    }
  }
  
